@@ -229,12 +229,30 @@ let isLoaded = false;
 // This must be triggered by a direct user action (onclick in HTML)
 async function startApp() {
     console.log("Starting Audio Context...");
+
     try {
         await Tone.start();
         console.log("Tone.js Context Started. State:", Tone.context.state);
+
+        // FORCE UNLOCK FOR MOBILE (Silent Buffer Strategy)
+        // Some mobile browsers need a sound to actually play to fully unlock
+        if (Tone.context.state !== 'running') {
+            console.warn("Context not running, forcing resume...");
+            await Tone.context.resume();
+        }
+
+        // Create a silent buffer and play it to force the audio engine to wake up
+        const buffer = Tone.context.createBuffer(1, 1, Tone.context.sampleRate);
+        const source = Tone.context.createBufferSource();
+        source.buffer = buffer;
+        source.connect(Tone.context.destination);
+        source.start(0);
+        console.log("Silent buffer played to force audio wake-up");
+
     } catch (e) {
         console.error("Failed to start Tone context:", e);
         alert("Audio Context failed to start: " + e);
+        return; // Don't proceed if audio failed
     }
 
     // Hide overlay
