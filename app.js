@@ -38,15 +38,8 @@ async function checkLicense() {
 }
 function unlockApp() {
     document.getElementById('license-wall').style.display = 'none';
-    // Show Start Overlay for Mobile Audio Context
-    const overlay = document.getElementById('start-overlay');
-    if (overlay) {
-        overlay.style.display = 'flex';
-    } else {
-        // Fallback
-        document.getElementById('app-content').classList.remove('hidden-app');
-        document.body.style.overflow = 'auto';
-    }
+    document.getElementById('app-content').classList.remove('hidden-app');
+    document.body.style.overflow = 'auto'; // Enable scroll
 }
 function toggleGuide() {
     const modal = document.getElementById('guide-modal');
@@ -221,59 +214,8 @@ for (let i = 0; i < NUM_KEYS; i++) {
 }
 
 // --- TONE.JS SAMPLER SETUP ---
-// --- TONE.JS SAMPLER SETUP ---
 let sampler;
 let isLoaded = false;
-
-// EXPLICIT START FUNCTION FOR MOBILE
-// This must be triggered by a direct user action (onclick in HTML)
-async function startApp() {
-    console.log("Starting Audio Context...");
-
-    try {
-        await Tone.start();
-        console.log("Tone.js Context Started. State:", Tone.context.state);
-
-        // FORCE UNLOCK FOR MOBILE (Silent Buffer Strategy)
-        // Some mobile browsers need a sound to actually play to fully unlock
-        if (Tone.context.state !== 'running') {
-            console.warn("Context not running, forcing resume...");
-            await Tone.context.resume();
-        }
-
-        // FORCE UNLOCK FOR MOBILE (Oscillator Strategy)
-        // Play a silent oscillator to wake up the audio engine safely
-        const osc = new Tone.Oscillator(440, "sine").toDestination();
-        osc.volume.value = -100; // Mute
-        osc.start();
-        osc.stop("+0.1");
-        console.log("Silent oscillator triggered to force audio wake-up");
-
-    } catch (e) {
-        console.error("Failed to start Tone context:", e);
-        alert("Audio Context failed to start: " + e);
-        return; // Don't proceed if audio failed
-    }
-
-    // Hide overlay
-    const overlay = document.getElementById('start-overlay');
-    const app = document.getElementById('app-content');
-
-    if (overlay) {
-        overlay.style.opacity = '0';
-        setTimeout(() => overlay.style.display = 'none', 500);
-    }
-
-    if (app) {
-        app.classList.remove('hidden-app');
-        app.style.filter = 'none';
-    }
-
-    document.body.style.overflow = 'auto'; // Enable scroll
-
-    // Init Sampler
-    initAudio();
-}
 
 function initAudio() {
     if (sampler) return; // Already init
@@ -322,7 +264,7 @@ function initAudio() {
         release: 1,
         baseUrl: "https://tonejs.github.io/audio/salamander/",
         onload: () => {
-            console.log("Sampler Loaded Successfully!");
+            console.log("Sampler Loaded!");
             isLoaded = true;
             if (loadingMsg) {
                 loadingMsg.innerText = "PIANO READY 🎹";
@@ -345,7 +287,23 @@ function initAudio() {
     sampler.connect(reverb);
 }
 
+// Auto-init on first user interaction (to bypass autoplay policy)
+// Updates context for mobile devices (iOS/Android) which require explicit touchstart/click
+const startAudioEngine = async () => {
+    await Tone.start();
+    console.log("Audio Context Started");
+    initAudio();
 
+    // Remove listeners to prevent multiple calls (though initAudio has a guard)
+    ['click', 'touchstart', 'keydown'].forEach(evt =>
+        document.removeEventListener(evt, startAudioEngine)
+    );
+};
+
+// Listen for any interaction
+['click', 'touchstart', 'keydown'].forEach(evt =>
+    document.addEventListener(evt, startAudioEngine)
+);
 
 
 function toggleBass() {
