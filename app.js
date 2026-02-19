@@ -278,11 +278,22 @@ function initAudio() {
 }
 
 // Auto-init on first user interaction (to bypass autoplay policy)
-document.onclick = async () => {
+// Updates context for mobile devices (iOS/Android) which require explicit touchstart/click
+const startAudioEngine = async () => {
     await Tone.start();
+    console.log("Audio Context Started");
     initAudio();
-    document.onclick = null; // Remove handler
+
+    // Remove listeners to prevent multiple calls (though initAudio has a guard)
+    ['click', 'touchstart', 'keydown'].forEach(evt =>
+        document.removeEventListener(evt, startAudioEngine)
+    );
 };
+
+// Listen for any interaction
+['click', 'touchstart', 'keydown'].forEach(evt =>
+    document.addEventListener(evt, startAudioEngine)
+);
 
 function toggleBass() {
     enableBass = !enableBass;
