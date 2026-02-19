@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jazz Harmony Explorer PRO</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+</head>
+
+<body>
+
+    <!-- LICENSE WALL -->
+    <div id="license-wall">
+        <div class="license-box">
+            <h2>🔐 Professional Access</h2>
+            <p>Enter your License Key to unlock the<br>Jazz Harmony Explorer PRO.</p>
+            <input type="text" id="license-input" class="license-input" placeholder="XXXX-XXXX-XXXX">
+            <button class="btn-unlock" onclick="checkLicense()">UNLOCK APP</button>
+            <div style="margin-top:20px; font-size:11px; color:#555;">
+                Don't have a key? <a href="index.html" style="color:#888; text-decoration:underline;"
+                    target="_blank">Get one here</a>.
+            </div>
+            <div id="license-error" style="color:#ff4757; font-size:12px; margin-top:10px; display:none;">Invalid
+                License Key</div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="app-content" class="hidden-app">
+        <div class="header">
+            <h1>Harmony Explorer <span
+                    style="font-size:12px; vertical-align:top; color:#ff4757; margin-left:5px; border:1px solid #ff4757; padding:2px 5px; border-radius:4px;">PRO</span>
+            </h1>
+            <div class="subtitle">Advanced Jazz Voicing & Progression Generator</div>
+        </div>
+
+        <div class="controls-top">
+            <select id="prog-selector">
+                <optgroup label="Foundations">
+                    <option value="251_maj">Major II - V - I</option>
+                    <option value="251_min">Minor II - V - i</option>
+                    <option value="1625">Turnaround (I - VI - II - V)</option>
+                    <option value="3625">Ext. Turnaround (III - VI - II - V)</option>
+                </optgroup>
+                <optgroup label="Neo Soul & R&B (NEW)">
+                    <option value="neosoul_1">Soul Cadence (im9 - bVII - bVI)</option>
+                    <option value="neosoul_2">Philly Vibe (IV - i - bVII)</option>
+                    <option value="glasper_vibe">Glasper Movement (Sus/11s)</option>
+                    <option value="sunday_love">Gospel/R&B Fusion</option>
+                </optgroup>
+                <optgroup label="Lo-Fi & Chill (NEW)">
+                    <option value="lofi_1">Nujabes Flow (Maj9/min9)</option>
+                    <option value="lofi_2">Coffee Shop (ii-V-I)</option>
+                    <option value="anime_vibe">Anime Ending (IV-I)</option>
+                </optgroup>
+                <optgroup label="Jazz Standards (NEW)">
+                    <option value="autumn_leaves">Autumn Leaves (A Section)</option>
+                    <option value="blue_bossa">Blue Bossa (A Section)</option>
+                    <option value="stella">Stella by Starlight (Start)</option>
+                    <option value="giant_steps">Classic Coltrane Cycle</option>
+                </optgroup>
+                <optgroup label="Cinematic & Dark (NEW)">
+                    <option value="dark_hero">Dark Hero (Minor/Lydian)</option>
+                    <option value="space_travel">Space Lydian (Interstellar)</option>
+                    <option value="noir_detective">Noir Detective (1940s)</option>
+                </optgroup>
+                <optgroup label="Advanced Substitutions">
+                    <option value="tritone_sub">Tritone Sub (II - ♭II7 - I)</option>
+                    <option value="backdoor">Backdoor (IVm - ♭VII7 - I)</option>
+                    <option value="gospel_walk">Gospel Walkdown</option>
+                    <option value="preacher">Preacher's Cadence</option>
+                </optgroup>
+            </select>
+
+            <!-- KEY SELECTOR -->
+            <select class="control-select" id="key-selector" onchange="generateProgression()">
+                <option value="random">🎲 Random Key</option>
+                <option value="0" selected>Key: C</option>
+                <option value="-1">Key: F</option>
+                <option value="-2">Key: Bb</option>
+                <option value="-3">Key: Eb</option>
+                <option value="-4">Key: Ab</option>
+                <option value="-5">Key: Db</option>
+                <option value="6">Key: F# / Gb</option>
+                <option value="5">Key: B</option>
+                <option value="4">Key: E</option>
+                <option value="3">Key: A</option>
+                <option value="2">Key: D</option>
+                <option value="1">Key: G</option>
+            </select>
+
+            <button class="generate-btn" onclick="generateProgression()">GENERATE</button>
+        </div>
+
+        <div class="progression-bar" id="progression-bar"></div>
+
+        <div class="piano-wrapper" id="piano"></div>
+        <div class="analysis-text" id="analysis-text"></div>
+
+        <div class="controls-bottom">
+            <button class="tool-btn" onclick="playCurrentStep()">▶ CHORD</button>
+            <button class="tool-btn" onclick="playSequence()" style="border-color:#8b5cf6; color:#a78bfa;">▶▶ PLAY
+                ALL</button>
+            <button class="tool-btn active-toggle" id="bass-toggle" onclick="toggleBass()">BASS: ON</button>
+            <button class="tool-btn active-toggle" id="voicing-toggle" onclick="toggleVoicingMode()">VOICING:
+                <b>JAZZ</b></button>
+            <div style="flex-grow:1"></div>
+            <button class="tool-btn" onclick="saveToLibrary()" style="color:#2ecc71; border-color:#1e3a29;">❤️
+                SAVE</button>
+            <button class="tool-btn" onclick="downloadMidi()">⬇ MIDI</button>
+            <button class="tool-btn" onclick="toggleGuide()">?</button>
+        </div>
+
+        <div class="library-panel">
+            <div class="lib-header">
+                <span class="lib-title">SAVED IDEAS (<span id="lib-count">0</span>)</span>
+                <input type="text" id="lib-search" class="search-input" placeholder="Filter library..."
+                    onkeyup="renderLibrary()">
+            </div>
+            <div id="library-list" class="lib-list-container"></div>
+            <div style="text-align:right; font-size:11px; color:#555;">
+                <span style="cursor:pointer; text-decoration:underline; margin-right:15px;"
+                    onclick="exportBackup()">Backup JSON</span>
+                <span style="cursor:pointer; text-decoration:underline; color:#aa4444;" onclick="clearLibrary()">Clear
+                    All</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="toast-hidden">Saved to Library!</div>
+
+    <!-- CONFIRM MODAL -->
+    <div id="confirm-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content" style="max-width:350px; text-align:center;">
+            <h2 id="confirm-title" style="color:#ef4444;">⚠️ Delete?</h2>
+            <div class="modal-body">
+                <p id="confirm-msg" style="margin-bottom:20px;">Are you sure?</p>
+                <div style="display:flex; gap:10px;">
+                    <button class="tool-btn" onclick="closeConfirmModal()" style="flex:1;">CANCEL</button>
+                    <button class="tool-btn" onclick="executeConfirm()"
+                        style="flex:1; background:#ef4444; color:white; border-color:#dc2626;">CONFIRM</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SAVE MODAL -->
+    <div id="save-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content" style="max-width:350px;">
+            <h2>💾 Save Idea</h2>
+            <div class="modal-body" style="text-align:center;">
+                <p>Give a name to this progression:</p>
+                <input type="text" id="save-name-input" class="license-input" placeholder="My Jazz Idea..."
+                    style="margin-bottom:20px;">
+                <div style="display:flex; gap:10px;">
+                    <button class="tool-btn" onclick="closeSaveModal()" style="flex:1;">CANCEL</button>
+                    <button class="tool-btn" onclick="confirmSave()"
+                        style="flex:1; background:#10b981; color:white; border-color:#059669;">SAVE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GUIDE MODAL -->
+    <div id="guide-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h2>🎷 Jazz Harmony Guide</h2>
+            <div class="modal-body">
+                <p>Welcome to <b>Jazz Harmony PRO</b>. Generate professional chord progressions instantly.</p>
+
+                <h3>1. Quick Start</h3>
+                <ul>
+                    <li>Select a <b>Key</b> (e.g. C, Bb, Eb).</li>
+                    <li>Choose a <b>Style/Template</b> (Standards, Neo-Soul, Lo-Fi).</li>
+                    <li>Click <b>GENERATE</b>.</li>
+                </ul>
+
+                <h3>2. Controls</h3>
+                <ul>
+                    <li><b>PLAY ALL:</b> Listen to the full sequence with real piano audio.</li>
+                    <li><b>VOICING MODE:</b> Switch between <b>BASIC</b> (Theory view) and <b>JAZZ</b> (Professional
+                        Shell Voicings).</li>
+                    <li><b>BASS:</b> Toggle left-hand bass for practice.</li>
+                </ul>
+
+                <h3>3. Library</h3>
+                <p>Click <b style="color:#2ecc71">❤️ SAVE</b> to store your favorite progressions locally. Export as
+                    MIDI to use in your DAW.</p>
+            </div>
+            <button class="modal-close-btn" onclick="toggleGuide()">CLOSE</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
