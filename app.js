@@ -229,8 +229,13 @@ let isLoaded = false;
 // This must be triggered by a direct user action (onclick in HTML)
 async function startApp() {
     console.log("Starting Audio Context...");
-    await Tone.start();
-    console.log("Audio Context Started");
+    try {
+        await Tone.start();
+        console.log("Tone.js Context Started. State:", Tone.context.state);
+    } catch (e) {
+        console.error("Failed to start Tone context:", e);
+        alert("Audio Context failed to start: " + e);
+    }
 
     // Hide overlay
     const overlay = document.getElementById('start-overlay');
@@ -299,13 +304,21 @@ function initAudio() {
         release: 1,
         baseUrl: "https://tonejs.github.io/audio/salamander/",
         onload: () => {
-            console.log("Sampler Loaded!");
+            console.log("Sampler Loaded Successfully!");
             isLoaded = true;
             if (loadingMsg) {
                 loadingMsg.innerText = "PIANO READY 🎹";
                 loadingMsg.style.color = "#2ecc71";
                 setTimeout(() => { if (loadingMsg) loadingMsg.remove(); }, 3000);
             }
+        },
+        onerror: (err) => {
+            console.error("Sampler Load Error:", err);
+            if (loadingMsg) {
+                loadingMsg.innerText = "ERROR LOADING SOUNDS ⚠️";
+                loadingMsg.style.color = "#ef4444";
+            }
+            alert("Error loading piano sounds. Please check your connection.");
         }
     }).toDestination();
 
