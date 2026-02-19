@@ -38,8 +38,15 @@ async function checkLicense() {
 }
 function unlockApp() {
     document.getElementById('license-wall').style.display = 'none';
-    document.getElementById('app-content').classList.remove('hidden-app');
-    document.body.style.overflow = 'auto'; // Enable scroll
+    // Show Start Overlay for Mobile Audio Context
+    const overlay = document.getElementById('start-overlay');
+    if (overlay) {
+        overlay.style.display = 'flex';
+    } else {
+        // Fallback
+        document.getElementById('app-content').classList.remove('hidden-app');
+        document.body.style.overflow = 'auto';
+    }
 }
 function toggleGuide() {
     const modal = document.getElementById('guide-modal');
@@ -234,7 +241,12 @@ async function startApp() {
         setTimeout(() => overlay.style.display = 'none', 500);
     }
 
-    if (app) app.style.filter = 'none';
+    if (app) {
+        app.classList.remove('hidden-app');
+        app.style.filter = 'none';
+    }
+
+    document.body.style.overflow = 'auto'; // Enable scroll
 
     // Init Sampler
     initAudio();
@@ -303,23 +315,7 @@ function initAudio() {
 }
 
 
-// Auto-init on first user interaction (to bypass autoplay policy)
-// Updates context for mobile devices (iOS/Android) which require explicit touchstart/click
-const startAudioEngine = async () => {
-    await Tone.start();
-    console.log("Audio Context Started");
-    initAudio();
 
-    // Remove listeners to prevent multiple calls (though initAudio has a guard)
-    ['click', 'touchstart', 'keydown'].forEach(evt =>
-        document.removeEventListener(evt, startAudioEngine)
-    );
-};
-
-// Listen for any interaction
-['click', 'touchstart', 'keydown'].forEach(evt =>
-    document.addEventListener(evt, startAudioEngine)
-);
 
 function toggleBass() {
     enableBass = !enableBass;
