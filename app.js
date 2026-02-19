@@ -241,13 +241,13 @@ async function startApp() {
             await Tone.context.resume();
         }
 
-        // Create a silent buffer and play it to force the audio engine to wake up
-        const buffer = Tone.context.createBuffer(1, 1, Tone.context.sampleRate);
-        const source = Tone.context.createBufferSource();
-        source.buffer = buffer;
-        source.connect(Tone.context.destination);
-        source.start(0);
-        console.log("Silent buffer played to force audio wake-up");
+        // FORCE UNLOCK FOR MOBILE (Oscillator Strategy)
+        // Play a silent oscillator to wake up the audio engine safely
+        const osc = new Tone.Oscillator(440, "sine").toDestination();
+        osc.volume.value = -100; // Mute
+        osc.start();
+        osc.stop("+0.1");
+        console.log("Silent oscillator triggered to force audio wake-up");
 
     } catch (e) {
         console.error("Failed to start Tone context:", e);
