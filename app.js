@@ -214,8 +214,31 @@ for (let i = 0; i < NUM_KEYS; i++) {
 }
 
 // --- TONE.JS SAMPLER SETUP ---
+// --- TONE.JS SAMPLER SETUP ---
 let sampler;
 let isLoaded = false;
+
+// EXPLICIT START FUNCTION FOR MOBILE
+// This must be triggered by a direct user action (onclick in HTML)
+async function startApp() {
+    console.log("Starting Audio Context...");
+    await Tone.start();
+    console.log("Audio Context Started");
+
+    // Hide overlay
+    const overlay = document.getElementById('start-overlay');
+    const app = document.getElementById('app-content');
+
+    if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.style.display = 'none', 500);
+    }
+
+    if (app) app.style.filter = 'none';
+
+    // Init Sampler
+    initAudio();
+}
 
 function initAudio() {
     if (sampler) return; // Already init
@@ -226,7 +249,7 @@ function initAudio() {
     loadingMsg.id = 'loadingAudioMsg';
     loadingMsg.style = "color: #fbbf24; font-size: 12px; margin-right: 15px; font-weight: bold;";
     loadingMsg.innerText = "LOADING PIANO SOUNDS...";
-    btnBox.insertBefore(loadingMsg, btnBox.firstChild);
+    if (btnBox) btnBox.insertBefore(loadingMsg, btnBox.firstChild);
 
     sampler = new Tone.Sampler({
         urls: {
@@ -266,9 +289,11 @@ function initAudio() {
         onload: () => {
             console.log("Sampler Loaded!");
             isLoaded = true;
-            loadingMsg.innerText = "PIANO READY 🎹";
-            loadingMsg.style.color = "#2ecc71";
-            setTimeout(() => { if (loadingMsg) loadingMsg.remove(); }, 3000);
+            if (loadingMsg) {
+                loadingMsg.innerText = "PIANO READY 🎹";
+                loadingMsg.style.color = "#2ecc71";
+                setTimeout(() => { if (loadingMsg) loadingMsg.remove(); }, 3000);
+            }
         }
     }).toDestination();
 
@@ -276,6 +301,7 @@ function initAudio() {
     const reverb = new Tone.Reverb({ decay: 2.5, preDelay: 0.1, wet: 0.3 }).toDestination();
     sampler.connect(reverb);
 }
+
 
 // Auto-init on first user interaction (to bypass autoplay policy)
 // Updates context for mobile devices (iOS/Android) which require explicit touchstart/click
