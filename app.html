@@ -11,24 +11,8 @@
 
 <body>
 
-    <!-- LICENSE WALL -->
-    <div id="license-wall">
-        <div class="license-box">
-            <h2>🔐 Professional Access</h2>
-            <p>Enter your License Key to unlock the<br>Jazz Harmony Explorer PRO.</p>
-            <input type="text" id="license-input" class="license-input" placeholder="XXXX-XXXX-XXXX">
-            <button class="btn-unlock" onclick="checkLicense()">UNLOCK APP</button>
-            <div style="margin-top:20px; font-size:11px; color:#555;">
-                Don't have a key? <a href="index.html" style="color:#888; text-decoration:underline;"
-                    target="_blank">Get one here</a>.
-            </div>
-            <div id="license-error" style="color:#ff4757; font-size:12px; margin-top:10px; display:none;">Invalid
-                License Key</div>
-        </div>
-    </div>
-
     <!-- MAIN APP -->
-    <div id="app-content" class="hidden-app">
+    <div id="app-content">
         <div class="header">
             <h1>Harmony Explorer <span
                     style="font-size:12px; vertical-align:top; color:#ff4757; margin-left:5px; border:1px solid #ff4757; padding:2px 5px; border-radius:4px;">PRO</span>
@@ -153,7 +137,7 @@
             <h2>💾 Save Idea</h2>
             <div class="modal-body" style="text-align:center;">
                 <p>Give a name to this progression:</p>
-                <input type="text" id="save-name-input" class="license-input" placeholder="My Jazz Idea..."
+                <input type="text" id="save-name-input" class="save-name-input" placeholder="My Jazz Idea..."
                     style="margin-bottom:20px;">
                 <div style="display:flex; gap:10px;">
                     <button class="tool-btn" onclick="closeSaveModal()" style="flex:1;">CANCEL</button>

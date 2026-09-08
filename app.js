@@ -1,56 +1,10 @@
 // ==========================================
-// LICENSE & GUI
+// GUI
 // ==========================================
-async function checkLicense() {
-    const input = document.getElementById('license-input').value.trim();
-    const btn = document.querySelector('.btn-unlock');
-    const err = document.getElementById('license-error');
-
-    if (!input) return;
-
-    // Loading State
-    btn.innerText = "VERIFYING...";
-    btn.disabled = true;
-    err.style.display = 'none';
-
-    try {
-        const response = await fetch('https://api.gumroad.com/v2/licenses/verify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `product_permalink=jazz-harmony&license_key=${input}`
-        });
-
-        const data = await response.json();
-
-        if (data.success && !data.purchase.refunded && !data.purchase.chargebacked) {
-            unlockApp();
-            localStorage.setItem('jazzLicense', input);
-            btn.innerText = "SUCCESS!";
-        } else {
-            throw new Error("Invalid Key");
-        }
-    } catch (error) {
-        err.style.display = "block";
-        err.innerText = "Invalid License Key. Please check your email.";
-        btn.innerText = "UNLOCK APP";
-        btn.disabled = false;
-    }
-}
-function unlockApp() {
-    document.getElementById('license-wall').style.display = 'none';
-    document.getElementById('app-content').classList.remove('hidden-app');
-    document.body.style.overflow = 'auto'; // Enable scroll
-}
 function toggleGuide() {
     const modal = document.getElementById('guide-modal');
     modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
 }
-
-// Auto-check logic
-window.onload = function () {
-    if (localStorage.getItem('jazzLicense')) unlockApp();
-};
-
 
 // ==========================================
 // 1. THEORY ENGINE
